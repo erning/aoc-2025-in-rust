@@ -3,5 +3,5 @@
 version = 4
 
 [[package]]
-name = "aoc-xxxx-in-rust"
+name = "aoc-2025-in-rust"
 version = "0.1.0"
