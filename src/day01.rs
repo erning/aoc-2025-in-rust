@@ -1,91 +1,69 @@
-const DIAL_SIZE: i32 = 100; // Total number of positions on the dial (0-99)
+const DIAL_SIZE: i32 = 100;
 
-fn parse_input(input: &str) -> Vec<(char, i32)> {
+fn parse_input(input: &str) -> Vec<(i32, i32)> {
+    // Parse direction as sign: R=+1, L=-1
     input
         .lines()
         .filter(|line| !line.trim().is_empty())
         .map(|line| {
-            let direction = line.chars().next().unwrap();
-            let number = line[1..].parse::<i32>().unwrap();
-            (direction, number)
+            let sign = if line.starts_with('R') { 1 } else { -1 };
+            let steps = line[1..].parse::<i32>().unwrap();
+            (sign, steps)
         })
         .collect()
 }
 
 pub fn part_one(input: &str) -> i32 {
     let instructions = parse_input(input);
-    let mut position = 50; // initial position
-    let mut zero_count = 0; // count of stops at 0
+    let mut position = 50;
+    let mut count = 0;
 
-    for (direction, steps) in instructions {
-        match direction {
-            'L' => {
-                // turn left: counter-clockwise, position decreases
-                position = (position - steps) % DIAL_SIZE;
-            }
-            'R' => {
-                // turn right: clockwise, position increases
-                position = (position + steps) % DIAL_SIZE;
-            }
-            _ => panic!("Invalid direction: {}", direction),
-        }
-
-        // check if stopped at 0
+    for (sign, steps) in instructions {
+        position = (position + sign * steps).rem_euclid(DIAL_SIZE);
         if position == 0 {
-            zero_count += 1;
+            count += 1;
         }
     }
 
-    zero_count
+    count
 }
 
 pub fn part_two(input: &str) -> i32 {
     let instructions = parse_input(input);
-    let mut position = 50; // initial position
-    let mut zero_count = 0; // count of all passes through 0
+    let mut position = 50;
+    let mut count = 0;
 
-    for (direction, steps) in instructions {
-        // Calculate complete rotations and remainder
-        let full_rotations = steps / 100;
-        let remainder = steps % 100;
+    for (sign, steps) in instructions {
+        // Each full rotation crosses 0 once
+        count += steps / DIAL_SIZE;
 
-        zero_count += full_rotations; // Each full rotation passes through 0
+        let remainder = steps % DIAL_SIZE;
+        let new_position =
+            (position + sign * remainder).rem_euclid(DIAL_SIZE);
 
-        if remainder > 0 {
-            let new_position = match direction {
-                'L' => {
-                    let new_pos =
-                        (position + DIAL_SIZE - remainder) % DIAL_SIZE;
-                    // Count crossing 0 if not starting from 0 and not landing on 0
-                    if position != 0 && position < remainder && new_pos != 0 {
-                        zero_count += 1;
-                    }
-                    new_pos
-                }
-                'R' => {
-                    let new_pos = (position + remainder) % DIAL_SIZE;
-                    // Count crossing 0 if not starting from 0 and not landing on 0
-                    if position != 0
-                        && position + remainder >= DIAL_SIZE
-                        && new_pos != 0
-                    {
-                        zero_count += 1;
-                    }
-                    new_pos
-                }
-                _ => panic!("Invalid direction: {}", direction),
-            };
-
-            // Count if we land exactly on 0
-            if new_position == 0 {
-                zero_count += 1;
+        // Check if we crossed 0 (not counting starting from 0)
+        let crossed = if position != 0 {
+            if sign > 0 {
+                position + remainder >= DIAL_SIZE
+            } else {
+                position < remainder
             }
+        } else {
+            false
+        };
 
-            position = new_position;
+        // Landing on 0 counts (but not if we started from 0 and didn't move)
+        let landed_on_zero =
+            new_position == 0 && (position != 0 || remainder > 0);
+
+        if crossed || landed_on_zero {
+            count += 1;
         }
+
+        position = new_position;
     }
 
-    zero_count
+    count
 }
 
 #[cfg(test)]
