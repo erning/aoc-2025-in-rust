@@ -30,8 +30,8 @@ cargo test day01
 | Day | Part One | Part Two | Title |
 |:---:|:--------:|:--------:|-------|
 | [1](https://adventofcode.com/2025/day/1) | :star: | :star: | Historian Hysteria |
-| [2](https://adventofcode.com/2025/day/2) | | | |
-| [3](https://adventofcode.com/2025/day/3) | | | |
+| [2](https://adventofcode.com/2025/day/2) | :star: | :star: | Gift Shop |
+| [3](https://adventofcode.com/2025/day/3) | :star: | :star: | Lobby |
 | [4](https://adventofcode.com/2025/day/4) | | | |
 | [5](https://adventofcode.com/2025/day/5) | | | |
 | [6](https://adventofcode.com/2025/day/6) | | | |
