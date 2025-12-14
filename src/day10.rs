@@ -318,6 +318,7 @@ fn solve_nonneg_integer(
         &mut vec![0i64; n_buttons],
         max_search,
         &mut min_presses,
+        0, // current_sum starts at 0
     );
 
     if min_presses == i64::MAX {
@@ -336,10 +337,17 @@ fn search_solution(
     solution: &mut Vec<i64>,
     max_val: i64,
     min_presses: &mut i64,
+    current_sum: i64,
 ) {
+    // Pruning: if current sum of free variables already >= best solution, skip
+    if current_sum >= *min_presses {
+        return;
+    }
+
     if free_idx == free_cols.len() {
         // All free variables set, compute pivot variables
         let mut sol = solution.clone();
+        let mut pivot_sum: i64 = 0;
 
         for (row, &col) in pivot_cols.iter().enumerate().rev() {
             let mut sum = matrix[row][n_buttons];
@@ -351,19 +359,34 @@ fn search_solution(
                 return;
             }
 
-            sol[col] = sum / matrix[row][col];
+            let val = sum / matrix[row][col];
+            if val < 0 {
+                return; // Early exit if negative
+            }
+            sol[col] = val;
+            pivot_sum += val;
+            
+            // Early pruning during back-substitution
+            if current_sum + pivot_sum >= *min_presses {
+                return;
+            }
         }
 
-        // Check all non-negative
-        if sol.iter().all(|&x| x >= 0) {
-            let total: i64 = sol.iter().sum();
-            *min_presses = (*min_presses).min(total);
-        }
+        let total = current_sum + pivot_sum;
+        *min_presses = (*min_presses).min(total);
         return;
     }
 
     let col = free_cols[free_idx];
-    for val in 0..=max_val {
+    // Limit max_val based on remaining budget
+    let remaining_budget = *min_presses - current_sum - 1;
+    let effective_max = if remaining_budget >= 0 {
+        max_val.min(remaining_budget)
+    } else {
+        return;
+    };
+
+    for val in 0..=effective_max {
         solution[col] = val;
         search_solution(
             matrix,
@@ -374,12 +397,8 @@ fn search_solution(
             solution,
             max_val,
             min_presses,
+            current_sum + val,
         );
-
-        // Early exit if we found a solution and current val already exceeds it
-        if *min_presses != i64::MAX && val as i64 >= *min_presses {
-            break;
-        }
     }
     solution[col] = 0;
 }
