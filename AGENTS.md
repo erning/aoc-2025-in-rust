@@ -48,6 +48,41 @@ cargo fmt      # Code formatting
 - `aoc::read_example(day)` - Example input
 - `aoc::read_as_string(day, filename)` - Custom input file
 
+## Scripts
+
+### Download Puzzle Input
+```bash
+# Download input for a specific day (requires authentication)
+./scripts/download-input.sh 5
+
+# Download today's input
+./scripts/download-input.sh
+
+# Set up authentication (choose one method):
+# Method 1: Environment variable
+export AOC_SESSION="your_session_cookie_here"
+
+# Method 2: Local file
+echo "your_session_cookie_here" > .aoc-session
+
+# Method 3: Global file
+echo "your_session_cookie_here" > ~/.aoc-session
+```
+
+To get your session cookie:
+1. Login to https://adventofcode.com via GitHub
+2. Open browser DevTools (F12) → Application → Cookies
+3. Copy the value of 'session' cookie
+
+### Submit Answer
+```bash
+# Submit answer for a specific day and part
+./scripts/submit-answer.sh 5 1 12345
+
+# The script will indicate if the answer is correct or not
+# and provide any available hints (too high/low, rate limits, etc.)
+```
+
 ## Extension Workflow
 1. Create `src/dayXX.rs` following established patterns
 2. Add module declaration to `src/lib.rs`
