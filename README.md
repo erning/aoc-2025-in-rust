@@ -36,7 +36,7 @@ cargo test day01
 | [5](https://adventofcode.com/2025/day/5) | :star: | :star: | Cafeteria |
 | [6](https://adventofcode.com/2025/day/6) | :star: | :star: | Trash Compactor |
 | [7](https://adventofcode.com/2025/day/7) | :star: | :star: | Laboratories |
-| [8](https://adventofcode.com/2025/day/8) | | | |
+| [8](https://adventofcode.com/2025/day/8) | :star: | :star: | Playground |
 | [9](https://adventofcode.com/2025/day/9) | | | |
 | [10](https://adventofcode.com/2025/day/10) | | | |
 | [11](https://adventofcode.com/2025/day/11) | | | |

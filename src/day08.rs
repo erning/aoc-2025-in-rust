@@ -111,7 +111,36 @@ pub fn part_one(input: &str) -> u64 {
     solve(input, 1000)
 }
 
-pub fn part_two(_input: &str) -> u64 {
+pub fn part_two(input: &str) -> i64 {
+    let points = parse_input(input);
+    let n = points.len();
+
+    // Calculate all pairwise distances
+    let mut edges: Vec<(i64, usize, usize)> = Vec::new();
+    for i in 0..n {
+        for j in (i + 1)..n {
+            let dist = distance_squared(&points[i], &points[j]);
+            edges.push((dist, i, j));
+        }
+    }
+
+    // Sort by distance
+    edges.sort_by_key(|e| e.0);
+
+    // Connect until all in one circuit
+    let mut uf = UnionFind::new(n);
+    let mut num_circuits = n;
+
+    for (_, i, j) in edges {
+        if uf.union(i, j) {
+            num_circuits -= 1;
+            if num_circuits == 1 {
+                // This was the last connection needed
+                return points[i].0 * points[j].0;
+            }
+        }
+    }
+
     0
 }
 
@@ -124,5 +153,6 @@ mod tests {
     fn example() {
         let input = read_example(8);
         assert_eq!(solve(&input, 10), 40);
+        assert_eq!(part_two(&input), 25272);
     }
 }
