@@ -30,8 +30,28 @@ pub fn part_one(input: &str) -> usize {
     ids.iter().filter(|&&id| is_fresh(id, &ranges)).count()
 }
 
-pub fn part_two(_input: &str) -> usize {
-    0
+pub fn part_two(input: &str) -> u64 {
+    let (ranges, _) = parse_input(input);
+
+    // Merge overlapping ranges
+    let mut sorted: Vec<(u64, u64)> = ranges;
+    sorted.sort_by_key(|r| r.0);
+
+    let mut merged: Vec<(u64, u64)> = Vec::new();
+    for (start, end) in sorted {
+        if let Some(last) = merged.last_mut() {
+            if start <= last.1 + 1 {
+                last.1 = last.1.max(end);
+            } else {
+                merged.push((start, end));
+            }
+        } else {
+            merged.push((start, end));
+        }
+    }
+
+    // Count total IDs
+    merged.iter().map(|(s, e)| e - s + 1).sum()
 }
 
 #[cfg(test)]
@@ -43,5 +63,6 @@ mod tests {
     fn example() {
         let input = read_example(5);
         assert_eq!(part_one(&input), 3);
+        assert_eq!(part_two(&input), 14);
     }
 }

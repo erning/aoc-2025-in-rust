@@ -33,7 +33,7 @@ cargo test day01
 | [2](https://adventofcode.com/2025/day/2) | :star: | :star: | Gift Shop |
 | [3](https://adventofcode.com/2025/day/3) | :star: | :star: | Lobby |
 | [4](https://adventofcode.com/2025/day/4) | :star: | :star: | Printing Department |
-| [5](https://adventofcode.com/2025/day/5) | | | |
+| [5](https://adventofcode.com/2025/day/5) | :star: | :star: | Cafeteria |
 | [6](https://adventofcode.com/2025/day/6) | | | |
 | [7](https://adventofcode.com/2025/day/7) | | | |
 | [8](https://adventofcode.com/2025/day/8) | | | |
