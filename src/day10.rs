@@ -125,8 +125,9 @@ fn solve_gaussian(target: &[bool], buttons: &[Vec<usize>]) -> Option<usize> {
         // Eliminate
         for row in 0..n_lights {
             if row != pivot_row && matrix[row][col] {
-                for c in 0..=n_buttons {
-                    matrix[row][c] = matrix[row][c] != matrix[pivot_row][c];
+                let pivot_row_copy: Vec<bool> = matrix[pivot_row].clone();
+                for (c, val) in matrix[row].iter_mut().enumerate().take(n_buttons + 1) {
+                    *val = *val != pivot_row_copy[c];
                 }
             }
         }
@@ -135,8 +136,8 @@ fn solve_gaussian(target: &[bool], buttons: &[Vec<usize>]) -> Option<usize> {
     }
 
     // Check for inconsistency
-    for row in pivot_row..n_lights {
-        if matrix[row][n_buttons] {
+    for row in matrix.iter().take(n_lights).skip(pivot_row) {
+        if row[n_buttons] {
             return None; // No solution
         }
     }
@@ -283,9 +284,9 @@ fn solve_nonneg_integer(
                 let mult_pivot = matrix[row][col] / g;
                 let mult_row = matrix[pivot_row][col] / g;
 
-                for c in 0..=n_buttons {
-                    matrix[row][c] = matrix[row][c] * mult_row
-                        - matrix[pivot_row][c] * mult_pivot;
+                let pivot_row_copy: Vec<i64> = matrix[pivot_row].clone();
+                for (c, val) in matrix[row].iter_mut().enumerate().take(n_buttons + 1) {
+                    *val = *val * mult_row - pivot_row_copy[c] * mult_pivot;
                 }
             }
         }
@@ -294,8 +295,8 @@ fn solve_nonneg_integer(
     }
 
     // Check for inconsistency
-    for row in pivot_row..n_counters {
-        if matrix[row][n_buttons] != 0 {
+    for row in matrix.iter().take(n_counters).skip(pivot_row) {
+        if row[n_buttons] != 0 {
             return None;
         }
     }
@@ -328,6 +329,7 @@ fn solve_nonneg_integer(
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn search_solution(
     matrix: &[Vec<i64>],
     pivot_cols: &[usize],

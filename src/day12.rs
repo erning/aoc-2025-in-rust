@@ -1,8 +1,9 @@
 use std::collections::HashSet;
 
 type Shape = Vec<(i32, i32)>; // List of (row, col) offsets
+type Region = (usize, usize, Vec<usize>); // (width, height, counts)
 
-fn parse_input(input: &str) -> (Vec<Shape>, Vec<(usize, usize, Vec<usize>)>) {
+fn parse_input(input: &str) -> (Vec<Shape>, Vec<Region>) {
     let parts: Vec<&str> = input.split("\n\n").collect();
     let mut shapes: Vec<Shape> = Vec::new();
     let mut regions: Vec<(usize, usize, Vec<usize>)> = Vec::new();
@@ -15,7 +16,7 @@ fn parse_input(input: &str) -> (Vec<Shape>, Vec<(usize, usize, Vec<usize>)>) {
         }
 
         // Check if this is a shape definition (starts with digit and colon)
-        if lines[0].chars().next().map_or(false, |c| c.is_ascii_digit())
+        if lines[0].chars().next().is_some_and(|c| c.is_ascii_digit())
             && lines[0].contains(':')
             && !lines[0].contains('x')
         {
@@ -130,9 +131,9 @@ fn solve(
 
     // Find first empty cell
     let mut first_empty = None;
-    'outer: for r in 0..height {
-        for c in 0..width {
-            if !grid[r][c] {
+    'outer: for (r, row) in grid.iter().enumerate().take(height) {
+        for (c, &cell) in row.iter().enumerate().take(width) {
+            if !cell {
                 first_empty = Some((r, c));
                 break 'outer;
             }
@@ -225,7 +226,7 @@ pub fn part_one(input: &str) -> usize {
     
     // Pre-compute all orientations for all shapes
     let all_orientations: Vec<Vec<Shape>> = shapes.iter()
-        .map(|shape| get_orientations(shape))
+        .map(get_orientations)
         .collect();
     
     regions
