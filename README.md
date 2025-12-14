@@ -42,3 +42,20 @@ cargo test day01
 | [11](https://adventofcode.com/2025/day/11) | :star: | :star: | Reactor |
 | [12](https://adventofcode.com/2025/day/12) | :star: | :star: | Christmas Tree Farm |
 
+## Algorithm Analysis
+
+| Day | Algorithm | Complexity | Notes |
+|:---:|-----------|------------|-------|
+| 1 | Linear traversal | O(n) | Modular arithmetic for dial position |
+| 2 | Generative enumeration | O(range) | Generate doubled/repeated numbers directly |
+| 3 | Greedy selection | O(n×k) | Pick largest available digit at each position |
+| 4 | Grid simulation | O(n×m×iter) | Iteratively remove accessible cells |
+| 5 | Interval merging | O(n log n) | Sort and merge overlapping ranges |
+| 6 | Parsing | O(input) | Column-wise number extraction |
+| 7 | HashMap beam tracking | O(n×m) | Track timeline counts per position |
+| 8 | Union-Find + sorting | O(n² log n) | Kruskal-style edge processing |
+| 9 | Point-in-polygon | O(n²×k) | Ray casting for rectangle validation |
+| 10 | Gaussian elimination + search | O(n³ + search) | Integer linear system with pruned search |
+| 11 | Memoized DFS | O(V+E) | Path counting with caching |
+| 12 | Backtracking | Exponential | Polyomino fitting with first-empty-cell heuristic |
+
