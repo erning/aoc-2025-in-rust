@@ -1,6 +1,8 @@
 # Advent of Code 2025 in Rust
 
-My solutions to [Advent of Code 2025](https://adventofcode.com/2025/) puzzles, implemented in Rust.
+Solutions to [Advent of Code 2025](https://adventofcode.com/2025/) puzzles, implemented in Rust.
+
+All puzzles were solved by [Droid](https://www.factory.ai/) using Claude Opus 4.5 (`claude-opus-4-5-20251101`).
 
 ## Running Solutions
 
