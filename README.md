@@ -39,6 +39,6 @@ cargo test day01
 | [8](https://adventofcode.com/2025/day/8) | :star: | :star: | Playground |
 | [9](https://adventofcode.com/2025/day/9) | :star: | :star: | Movie Theater |
 | [10](https://adventofcode.com/2025/day/10) | :star: | :star: | Factory |
-| [11](https://adventofcode.com/2025/day/11) | | | |
+| [11](https://adventofcode.com/2025/day/11) | :star: | :star: | Reactor |
 | [12](https://adventofcode.com/2025/day/12) | | | |
 
