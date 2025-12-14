@@ -25,22 +25,57 @@ cargo test
 cargo test day01
 ```
 
-## Progress
+## Results
 
-| Day | Part One | Part Two | Title |
-|:---:|:--------:|:--------:|-------|
-| [1](https://adventofcode.com/2025/day/1) | :star: | :star: | Historian Hysteria |
-| [2](https://adventofcode.com/2025/day/2) | :star: | :star: | Gift Shop |
-| [3](https://adventofcode.com/2025/day/3) | :star: | :star: | Lobby |
-| [4](https://adventofcode.com/2025/day/4) | :star: | :star: | Printing Department |
-| [5](https://adventofcode.com/2025/day/5) | :star: | :star: | Cafeteria |
-| [6](https://adventofcode.com/2025/day/6) | :star: | :star: | Trash Compactor |
-| [7](https://adventofcode.com/2025/day/7) | :star: | :star: | Laboratories |
-| [8](https://adventofcode.com/2025/day/8) | :star: | :star: | Playground |
-| [9](https://adventofcode.com/2025/day/9) | :star: | :star: | Movie Theater |
-| [10](https://adventofcode.com/2025/day/10) | :star: | :star: | Factory |
-| [11](https://adventofcode.com/2025/day/11) | :star: | :star: | Reactor |
-| [12](https://adventofcode.com/2025/day/12) | :star: | :star: | Christmas Tree Farm |
+```
+--- Day 1: Historian Hysteria ---
+Part One: 1123
+Part Two: 6695
+
+--- Day 2: Gift Shop ---
+Part One: 19386344315
+Part Two: 34421651192
+
+--- Day 3: Lobby ---
+Part One: 16927
+Part Two: 167384358365132
+
+--- Day 4: Printing Department ---
+Part One: 1527
+Part Two: 8690
+
+--- Day 5: Cafeteria ---
+Part One: 558
+Part Two: 344813017450467
+
+--- Day 6: Trash Compactor ---
+Part One: 5977759036837
+Part Two: 9630000828442
+
+--- Day 7: Laboratories ---
+Part One: 1516
+Part Two: 1393669447690
+
+--- Day 8: Playground ---
+Part One: 62186
+Part Two: 8420405530
+
+--- Day 9: Movie Theater ---
+Part One: 4729332959
+Part Two: 1474477524
+
+--- Day 10: Factory ---
+Part One: 524
+Part Two: 21696
+
+--- Day 11: Reactor ---
+Part One: 607
+Part Two: 506264456238938
+
+--- Day 12: Christmas Tree Farm ---
+Part One: 599
+Part Two: 0
+```
 
 ## Algorithm Analysis
 
