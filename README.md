@@ -40,5 +40,5 @@ cargo test day01
 | [9](https://adventofcode.com/2025/day/9) | :star: | :star: | Movie Theater |
 | [10](https://adventofcode.com/2025/day/10) | :star: | :star: | Factory |
 | [11](https://adventofcode.com/2025/day/11) | :star: | :star: | Reactor |
-| [12](https://adventofcode.com/2025/day/12) | | | |
+| [12](https://adventofcode.com/2025/day/12) | :star: | :star: | Christmas Tree Farm |
 
