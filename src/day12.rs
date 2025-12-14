@@ -184,14 +184,14 @@ fn solve(
     false
 }
 
-fn can_fit(shapes: &[Shape], width: usize, height: usize, counts: &[usize]) -> bool {
-    // Collect all pieces to place with their orientations
+fn can_fit_precomputed(all_orientations: &[Vec<Shape>], width: usize, height: usize, counts: &[usize]) -> bool {
+    // Collect all pieces to place with their orientations (using pre-computed orientations)
     let mut pieces: Vec<Vec<Shape>> = Vec::new();
     let mut piece_sizes: Vec<usize> = Vec::new();
 
     for (shape_idx, &count) in counts.iter().enumerate() {
-        if count > 0 && shape_idx < shapes.len() {
-            let orientations = get_orientations(&shapes[shape_idx]);
+        if count > 0 && shape_idx < all_orientations.len() {
+            let orientations = &all_orientations[shape_idx];
             let size = orientations[0].len();
             for _ in 0..count {
                 pieces.push(orientations.clone());
@@ -222,9 +222,15 @@ fn can_fit(shapes: &[Shape], width: usize, height: usize, counts: &[usize]) -> b
 
 pub fn part_one(input: &str) -> usize {
     let (shapes, regions) = parse_input(input);
+    
+    // Pre-compute all orientations for all shapes
+    let all_orientations: Vec<Vec<Shape>> = shapes.iter()
+        .map(|shape| get_orientations(shape))
+        .collect();
+    
     regions
         .iter()
-        .filter(|(width, height, counts)| can_fit(&shapes, *width, *height, counts))
+        .filter(|(width, height, counts)| can_fit_precomputed(&all_orientations, *width, *height, counts))
         .count()
 }
 
