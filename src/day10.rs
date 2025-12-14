@@ -1,4 +1,4 @@
-fn parse_line(line: &str) -> (Vec<bool>, Vec<Vec<usize>>) {
+fn parse_line(line: &str) -> (Vec<bool>, Vec<Vec<usize>>, Vec<i64>) {
     // Parse indicator lights [.##.]
     let bracket_start = line.find('[').unwrap();
     let bracket_end = line.find(']').unwrap();
@@ -23,13 +23,21 @@ fn parse_line(line: &str) -> (Vec<bool>, Vec<Vec<usize>>) {
             buttons.push(indices);
             i = paren_end + 1;
         } else if chars[i] == '{' {
-            break; // Stop at joltage requirements
+            break;
         } else {
             i += 1;
         }
     }
 
-    (lights, buttons)
+    // Parse joltage requirements {x,y,z}
+    let brace_start = line.find('{').unwrap();
+    let brace_end = line.find('}').unwrap();
+    let joltage: Vec<i64> = line[brace_start + 1..brace_end]
+        .split(',')
+        .map(|s| s.trim().parse().unwrap())
+        .collect();
+
+    (lights, buttons, joltage)
 }
 
 fn solve_machine(target: &[bool], buttons: &[Vec<usize>]) -> Option<usize> {
@@ -172,14 +180,290 @@ pub fn part_one(input: &str) -> usize {
         .lines()
         .filter(|line| !line.is_empty())
         .map(|line| {
-            let (target, buttons) = parse_line(line);
+            let (target, buttons, _) = parse_line(line);
             solve_machine(&target, &buttons).unwrap_or(0)
         })
         .sum()
 }
 
-pub fn part_two(_input: &str) -> usize {
+// Part 2: Integer linear programming - each button press increments counters
+// We need to find non-negative integers x_i such that:
+// sum(x_i * a_ij) = b_j for each counter j
+// and minimize sum(x_i)
+fn solve_joltage(target: &[i64], buttons: &[Vec<usize>]) -> i64 {
+    let n_counters = target.len();
+    let n_buttons = buttons.len();
+
+    // Build coefficient matrix: A[j][i] = 1 if button i affects counter j
+    let mut a: Vec<Vec<i64>> = vec![vec![0; n_buttons]; n_counters];
+    for (i, button) in buttons.iter().enumerate() {
+        for &j in button {
+            if j < n_counters {
+                a[j][i] = 1;
+            }
+        }
+    }
+
+    // Use brute force with bounded search for small inputs
+    // For each button, max presses needed is max(target) since each button adds at most 1
+    let max_press = *target.iter().max().unwrap_or(&0) as usize;
+
+    // Use iterative deepening / BFS-like approach
+    // Generate all combinations up to a certain total presses
+    solve_ilp(&a, target, n_buttons, max_press)
+}
+
+fn solve_ilp(
+    a: &[Vec<i64>],
+    target: &[i64],
+    n_buttons: usize,
+    max_total: usize,
+) -> i64 {
+    // Try to find solution using Gaussian elimination on integers
+    if let Some(result) = solve_nonneg_integer(a, target, n_buttons) {
+        return result;
+    }
+
+    // Fallback: brute force for small cases
+    if n_buttons <= 10 && max_total <= 20 {
+        for total in 0..=max_total {
+            if let Some(presses) =
+                find_combination(a, target, n_buttons, total)
+            {
+                return presses as i64;
+            }
+        }
+    }
+
     0
+}
+
+fn solve_nonneg_integer(
+    a: &[Vec<i64>],
+    target: &[i64],
+    n_buttons: usize,
+) -> Option<i64> {
+    let n_counters = target.len();
+
+    // Build augmented matrix [A | b]
+    let mut matrix: Vec<Vec<i64>> = vec![vec![0; n_buttons + 1]; n_counters];
+    for j in 0..n_counters {
+        for i in 0..n_buttons {
+            matrix[j][i] = a[j][i];
+        }
+        matrix[j][n_buttons] = target[j];
+    }
+
+    // Gaussian elimination with integer operations (using GCD)
+    let mut pivot_cols: Vec<usize> = Vec::new();
+    let mut pivot_row = 0;
+
+    for col in 0..n_buttons {
+        // Find non-zero pivot
+        let mut found = false;
+        for row in pivot_row..n_counters {
+            if matrix[row][col] != 0 {
+                matrix.swap(pivot_row, row);
+                found = true;
+                break;
+            }
+        }
+
+        if !found {
+            continue;
+        }
+
+        pivot_cols.push(col);
+
+        // Eliminate
+        for row in 0..n_counters {
+            if row != pivot_row && matrix[row][col] != 0 {
+                let g =
+                    gcd(matrix[pivot_row][col].abs(), matrix[row][col].abs());
+                let mult_pivot = matrix[row][col] / g;
+                let mult_row = matrix[pivot_row][col] / g;
+
+                for c in 0..=n_buttons {
+                    matrix[row][c] = matrix[row][c] * mult_row
+                        - matrix[pivot_row][c] * mult_pivot;
+                }
+            }
+        }
+
+        pivot_row += 1;
+    }
+
+    // Check for inconsistency
+    for row in pivot_row..n_counters {
+        if matrix[row][n_buttons] != 0 {
+            return None;
+        }
+    }
+
+    // Free variables
+    let free_cols: Vec<usize> =
+        (0..n_buttons).filter(|c| !pivot_cols.contains(c)).collect();
+
+    // Find minimum sum solution by trying different free variable values
+    let mut min_presses = i64::MAX;
+    // Max search should be at least max(target)
+    let max_search = (*target.iter().max().unwrap_or(&50)).max(50);
+
+    search_solution(
+        &matrix,
+        &pivot_cols,
+        &free_cols,
+        n_buttons,
+        0,
+        &mut vec![0i64; n_buttons],
+        max_search,
+        &mut min_presses,
+    );
+
+    if min_presses == i64::MAX {
+        None
+    } else {
+        Some(min_presses)
+    }
+}
+
+fn search_solution(
+    matrix: &[Vec<i64>],
+    pivot_cols: &[usize],
+    free_cols: &[usize],
+    n_buttons: usize,
+    free_idx: usize,
+    solution: &mut Vec<i64>,
+    max_val: i64,
+    min_presses: &mut i64,
+) {
+    if free_idx == free_cols.len() {
+        // All free variables set, compute pivot variables
+        let mut sol = solution.clone();
+
+        for (row, &col) in pivot_cols.iter().enumerate().rev() {
+            let mut sum = matrix[row][n_buttons];
+            for c in (col + 1)..n_buttons {
+                sum -= matrix[row][c] * sol[c];
+            }
+
+            if matrix[row][col] == 0 || sum % matrix[row][col] != 0 {
+                return;
+            }
+
+            sol[col] = sum / matrix[row][col];
+        }
+
+        // Check all non-negative
+        if sol.iter().all(|&x| x >= 0) {
+            let total: i64 = sol.iter().sum();
+            *min_presses = (*min_presses).min(total);
+        }
+        return;
+    }
+
+    let col = free_cols[free_idx];
+    for val in 0..=max_val {
+        solution[col] = val;
+        search_solution(
+            matrix,
+            pivot_cols,
+            free_cols,
+            n_buttons,
+            free_idx + 1,
+            solution,
+            max_val,
+            min_presses,
+        );
+
+        // Early exit if we found a solution and current val already exceeds it
+        if *min_presses != i64::MAX && val as i64 >= *min_presses {
+            break;
+        }
+    }
+    solution[col] = 0;
+}
+
+fn gcd(a: i64, b: i64) -> i64 {
+    if b == 0 {
+        a
+    } else {
+        gcd(b, a % b)
+    }
+}
+
+fn find_combination(
+    a: &[Vec<i64>],
+    target: &[i64],
+    n_buttons: usize,
+    total: usize,
+) -> Option<usize> {
+    // Try to find combination of exactly `total` presses
+    let n_counters = target.len();
+
+    fn backtrack(
+        a: &[Vec<i64>],
+        target: &[i64],
+        state: &mut Vec<i64>,
+        button: usize,
+        remaining: usize,
+        n_buttons: usize,
+        n_counters: usize,
+    ) -> bool {
+        if button == n_buttons {
+            return remaining == 0 && state == target;
+        }
+
+        // Pruning: check if any counter is already exceeded
+        for j in 0..n_counters {
+            if state[j] > target[j] {
+                return false;
+            }
+        }
+
+        // Try 0 to remaining presses for this button
+        for presses in 0..=remaining {
+            for j in 0..n_counters {
+                state[j] += a[j][button] * presses as i64;
+            }
+
+            if backtrack(
+                a,
+                target,
+                state,
+                button + 1,
+                remaining - presses,
+                n_buttons,
+                n_counters,
+            ) {
+                return true;
+            }
+
+            for j in 0..n_counters {
+                state[j] -= a[j][button] * presses as i64;
+            }
+        }
+
+        false
+    }
+
+    let mut state = vec![0i64; n_counters];
+    if backtrack(a, target, &mut state, 0, total, n_buttons, n_counters) {
+        Some(total)
+    } else {
+        None
+    }
+}
+
+pub fn part_two(input: &str) -> i64 {
+    input
+        .lines()
+        .filter(|line| !line.is_empty())
+        .map(|line| {
+            let (_, buttons, joltage) = parse_line(line);
+            solve_joltage(&joltage, &buttons)
+        })
+        .sum()
 }
 
 #[cfg(test)]
@@ -191,5 +475,6 @@ mod tests {
     fn example() {
         let input = read_example(10);
         assert_eq!(part_one(&input), 7);
+        assert_eq!(part_two(&input), 33);
     }
 }
