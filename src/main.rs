@@ -17,7 +17,7 @@ fn main() {
 
     let puzzles: Vec<(&str, SolverFn, SolverFn)> = vec![
         // register puzzle here
-        puzzle!(day01, "Historian Hysteria"),
+        puzzle!(day01, "Secret Entrance"),
         puzzle!(day02, "Gift Shop"),
         puzzle!(day03, "Lobby"),
         puzzle!(day04, "Printing Department"),

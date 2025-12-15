@@ -30,7 +30,7 @@ cargo test day01
 ## Results
 
 ```
---- Day 1: Historian Hysteria ---
+--- Day 1: Secret Entrance ---
 Part One: 1123
 Part Two: 6695
 
